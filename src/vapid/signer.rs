@@ -51,7 +51,7 @@ impl VapidSigner {
             claims = claims.with_subject("mailto:example@example.com".to_string());
         }
 
-        log::trace!("Using jwt: {:?}", claims);
+        println!("Using jwt: {:?}", claims);
 
         let auth_k = key.public_key();
 

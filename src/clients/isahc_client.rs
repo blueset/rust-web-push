@@ -46,17 +46,17 @@ impl IsahcWebPushClient {
 impl WebPushClient for IsahcWebPushClient {
     /// Sends a notification. Never times out.
     async fn send(&self, message: WebPushMessage) -> Result<(), WebPushError> {
-        trace!("Message: {:?}", message);
+        println!("Message: {:?}", message);
 
         let request = request_builder::build_request::<isahc::AsyncBody>(message);
 
-        trace!("Request: {:?}", request);
+        println!("Request: {:?}", request);
 
         let requesting = self.client.send_async(request);
 
         let response = requesting.await?;
 
-        trace!("Response: {:?}", response);
+        println!("Response: {:?}", response);
 
         let retry_after = response
             .headers()
@@ -65,7 +65,7 @@ impl WebPushClient for IsahcWebPushClient {
             .and_then(RetryAfter::from_str);
 
         let response_status = response.status();
-        trace!("Response status: {}", response_status);
+        println!("Response status: {}", response_status);
 
         let content_length: usize = response
             .headers()
@@ -82,13 +82,13 @@ impl WebPushClient for IsahcWebPushClient {
             .await
             .map_err(|_| WebPushError::InvalidResponse)?;
 
-        trace!("Body: {:?}", body);
+        println!("Body: {:?}", body);
 
-        trace!("Body text: {:?}", std::str::from_utf8(&body));
+        println!("Body text: {:?}", std::str::from_utf8(&body));
 
         let response = request_builder::parse_response(response_status, body.to_vec());
 
-        trace!("Response: {:?}", response);
+        println!("Response: {:?}", response);
 
         if let Err(WebPushError::ServerError(None)) = response {
             Err(WebPushError::ServerError(retry_after))
